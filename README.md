@@ -11,15 +11,17 @@ SpringBoot
 
 #### 使用说明
 
-    计算量的存储与并发控制主要分为redis和本地两种，目前支持链接redis的工具主要是redisson、spring redis
-    因此有以下七种使用方式，默认使用ReentrantLock加锁，本地map缓存
+    1、计算量的存储与并发控制主要分为redis和本地两种，目前支持链接redis的工具主要是redisson、spring redis
+    2、因此有以下七种使用方式，默认使用ReentrantLock加锁，本地map缓存
+    3、如果使用工具的地方很多，存储比较适合使用redis
+    4、如果限流的方法qps很高，使用redis进行加锁处理可能是比ReentrantLock更好的选择
     
     1、ReentrantLock加锁，本地map缓存
     
     @CountLimit(objectName = "request", 
         paramName = "shopIdList", 
         limit = 20000)
-    public void audit(ShopDeviceOfflineRequest request) {
+    public void audit(ShopOnlineDTO request) {
         //业务处理
     }
     
@@ -29,7 +31,7 @@ SpringBoot
         paramName = "shopIdList", 
         limit = 20000, 
         countFactoryEnum = CountLimitCommonUtil.LOCAL_LOCK_REDISSON_STORE)
-    public void audit(ShopDeviceOfflineRequest request) {
+    public void audit(ShopOnlineDTO request) {
         //业务处理
     }
     
@@ -40,7 +42,7 @@ SpringBoot
         paramName = "shopIdList", 
         limit = 20000, 
         countFactoryEnum = CountLimitCommonUtil.LOCAL_LOCK_SPRING_REDIS_STORE)
-    public void audit(ShopDeviceOfflineRequest request) {
+    public void audit(ShopOnlineDTO request) {
         //业务处理
     }
     
@@ -50,7 +52,7 @@ SpringBoot
         paramName = "shopIdList", 
         limit = 20000, 
         countFactoryEnum = CountLimitCommonUtil.REDISSON_LOCK_STORE)
-    public void audit(ShopDeviceOfflineRequest request) {
+    public void audit(ShopOnlineDTO request) {
         //业务处理
     }
     
@@ -60,7 +62,7 @@ SpringBoot
         paramName = "shopIdList", 
         limit = 20000, 
         countFactoryEnum = CountLimitCommonUtil.REDISSON_LOCK_REDISSON_STORE)
-    public void audit(ShopDeviceOfflineRequest request) {
+    public void audit(ShopOnlineDTO request) {
         //业务处理
     }
     
@@ -70,17 +72,17 @@ SpringBoot
         paramName = "shopIdList", 
         limit = 20000, 
         countFactoryEnum = CountLimitCommonUtil.SPRING_REDIS_LOCK_STORE)
-    public void audit(ShopDeviceOfflineRequest request) {
+    public void audit(ShopOnlineDTO request) {
         //业务处理
     }
     
-    6、spring redis加锁，spring redis缓存
+    7、spring redis加锁，spring redis缓存
     
     @CountLimit(objectName = "request", 
         paramName = "shopIdList", 
         limit = 20000, 
         countFactoryEnum = CountLimitCommonUtil.SPRING_REDIS_LOCK_SPRING_REDIS_STORE)
-    public void audit(ShopDeviceOfflineRequest request) {
+    public void audit(ShopOnlineDTO request) {
         //业务处理
     }
     
