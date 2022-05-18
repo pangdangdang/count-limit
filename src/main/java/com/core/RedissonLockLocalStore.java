@@ -3,6 +3,8 @@ package com.core;
 
 import com.core.factory.CountLimitFacade;
 import com.enums.CountFactoryEnum;
+import com.redislock.annotation.RedisLock;
+import com.redislock.core.RedisLockCommonUtil;
 import com.util.CountLimitDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -25,6 +27,10 @@ public class RedissonLockLocalStore extends CountLimitCommonBusiness implements 
     }
 
     @Override
+    @RedisLock(key = CountLimitCommonUtil.COUNT_LIMIT_LOCK,
+            suffixKeyTypeEnum = RedisLockCommonUtil.PARAM,
+            objectName = "countLimitDTO",
+            paramName = "LockKey")
     public boolean process(CountLimitDTO countLimitDTO) {
         if (countLimitDTO.getIsAdd()) {
             return super.localCheckExceed(countLimitDTO.getKey(), countLimitDTO.getCount(), countLimitDTO.getLimit());

@@ -71,8 +71,8 @@ public class CountLimitAspect<T> {
                 if (start.plusSeconds(countLimit.waitTime()).isBefore(LocalDateTime.now())) {
                     throw new CountLimitException("超出等待时间" + key);
                 }
-                //将等待时长划分为20份
-                Thread.sleep(countLimit.waitTime() * 1000 / 20);
+                //将等待时长划分为等份时长
+                Thread.sleep(countLimit.waitTime() * 1000 / CountLimitCommonUtil.SPILT_SLEEP);
             }
         } catch (Exception e) {
             throw new CountLimitException("计算限流异常", e);
@@ -82,7 +82,10 @@ public class CountLimitAspect<T> {
             return joinPoint.proceed();
         } finally {
             countLimitDTO.setIsAdd(Boolean.FALSE);
-            countLimitFacadeFactory.getBean(countFactoryEnum).process(countLimitDTO);
+            boolean success = countLimitFacadeFactory.getBean(countFactoryEnum).process(countLimitDTO);
+            if (!success) {
+                throw new CountLimitException("计算量减少失败" + countLimitDTO.toString());
+            }
         }
     }
 
