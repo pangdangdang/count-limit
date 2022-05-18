@@ -63,6 +63,7 @@ public class RedisLockKeyServiceImpl implements RedisLockService {
     }
 
 
+    @Override
     public Object lockBySpringRedis(String lockKey, ProceedingJoinPoint joinPoint, RedisLock redisLock) throws Throwable {
         try {
             if (redisTemplate.opsForValue().setIfAbsent(lockKey, lockKey)) {
@@ -83,6 +84,7 @@ public class RedisLockKeyServiceImpl implements RedisLockService {
     }
 
 
+    @Override
     public Object lockByRedisson(String lockKey, ProceedingJoinPoint joinPoint, RedisLock redisLock) throws Throwable {
         RLock lock = redissonClient.getLock(lockKey);
         try {

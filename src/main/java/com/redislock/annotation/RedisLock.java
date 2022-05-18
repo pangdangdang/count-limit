@@ -1,5 +1,8 @@
 package com.redislock.annotation;
 
+
+import com.redislock.core.RedisLockCommonUtil;
+
 import java.lang.annotation.*;
 import java.util.concurrent.TimeUnit;
 
@@ -15,8 +18,8 @@ public @interface RedisLock {
     long executeOut() default 60;
     TimeUnit timeUnit() default TimeUnit.SECONDS;
     boolean atuoRemove() default true;
-    String suffixKeyTypeEnum() default "no_suffix";
+    String suffixKeyTypeEnum() default RedisLockCommonUtil.NO_SUFFIX;
     String objectName() default "";
     String paramName() default "";
-    String redisEnum() default "redisson";
+    String redisEnum() default RedisLockCommonUtil.REDISSON;
 }
