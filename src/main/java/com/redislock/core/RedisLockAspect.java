@@ -56,12 +56,11 @@ public class RedisLockAspect {
         switch (redisEnum) {
             case REDISSON:
                 return redisLockService.lockByRedisson(lockKey, joinPoint, redisLock);
-
             case SPRING_REDIS:
                 return redisLockService.lockBySpringRedis(lockKey, joinPoint, redisLock);
-
+            default:
+                throw new RedisLockException("未知redis工具" + redisLock.redisEnum());
         }
-        return null;
     }
 
 }

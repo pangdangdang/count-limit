@@ -14,9 +14,13 @@ import java.util.Optional;
 @Getter
 public enum CountFactoryEnum {
 
-    LOCAL_LOCK_STORAGE("local_lock_storage", "使用本地缓存"),
-    REDISSON_STORAGE("redisson_storage", "使用Redisson存储"),
-    SPRING_REDIS_STORAGE("spring_redis_storage", "使用spring_redis存储"),
+    LOCAL_LOCK_STORE("local_lock_store", "使用本地锁本地缓存"),
+    LOCAL_LOCK_REDISSON_STORE("local_lock_redisson_store", "使用本地锁redisson缓存"),
+    LOCAL_LOCK_SPRING_REDIS_STORE("local_lock_spring_redis_store", "使用本地锁spring redis缓存"),
+    REDISSON_LOCK_STORE("redisson_lock_store", "使用redisson锁本地缓存"),
+    REDISSON_LOCK_REDISSON_STORE("redisson_lock_redisson_store", "使用redisson锁redisson缓存"),
+    SPRING_REDIS_LOCK_STORE("spring_redis_lock_store", "使用spring redis锁本地缓存"),
+    SPRING_REDIS_LOCK_SPRING_REDIS_STORE("spring_redis_lock_spring_redis_store", "使用spring redis锁spring redis缓存"),
     ;
 
     private String key;

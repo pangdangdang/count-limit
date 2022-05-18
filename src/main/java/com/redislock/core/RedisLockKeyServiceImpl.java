@@ -1,6 +1,6 @@
 package com.redislock.core;
 
-import com.core.CommonUtil;
+import com.core.CountLimitCommonUtil;
 import com.redislock.annotation.RedisLock;
 import com.redislock.core.inter.RedisLockService;
 import com.redislock.exception.RedisLockException;
@@ -58,7 +58,7 @@ public class RedisLockKeyServiceImpl implements RedisLockService {
         if (StringUtil.isBlank(paramName)) {
             return redisLock.key() + o.toString();
         }
-        String lockKey = redisLock.key() + CommonUtil.getFieldValueByName(paramName, o);
+        String lockKey = redisLock.key() + CountLimitCommonUtil.getFieldValueByName(paramName, o);
         return lockKey;
     }
 

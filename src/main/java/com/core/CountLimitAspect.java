@@ -1,7 +1,10 @@
 package com.core;
 
 import com.annotation.CountLimit;
+import com.core.factory.CountLimitFacadeFactory;
+import com.enums.CountFactoryEnum;
 import com.exception.CountLimitException;
+import com.util.CountLimitDTO;
 import jodd.util.StringUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -9,28 +12,21 @@ import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.CodeSignature;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.Resource;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.ReentrantLock;
 
 @Slf4j
 @Aspect
 @Component
 public class CountLimitAspect<T> {
 
-    private static ReentrantLock lock = new ReentrantLock();
-
-    private static volatile ConcurrentHashMap<String, Integer> countMap = new ConcurrentHashMap<>();
-
-    @Value("${dcc.node.id}")
-    private int workerId;
+    @Resource
+    private CountLimitFacadeFactory<CountLimitDTO> countLimitFacadeFactory;
 
     @Pointcut("@annotation(com.annotation.CountLimit)")
     public void lockPointCut() {
@@ -42,18 +38,19 @@ public class CountLimitAspect<T> {
         LocalDateTime start = LocalDateTime.now();
         String inter = joinPoint.getTarget().getClass().getName() + joinPoint.getSignature().getName();
         String objectName = countLimit.objectName();
-        String par = countLimit.paramName();
         Object[] args = joinPoint.getArgs();
         String[] paramNames = ((CodeSignature) joinPoint.getSignature()).getParameterNames();
         Map<String, Object> param = new HashMap<>();
+        String par = countLimit.paramName();
         for (int i = 0; i < paramNames.length; i++) {
             param.put(paramNames[i], args[i]);
         }
-
+        CountFactoryEnum countFactoryEnum = CountFactoryEnum.of(countLimit.countFactoryEnum());
         //获取限制的参数
         List<T> queryPar;
         String key = inter + objectName;
         int count;
+        CountLimitDTO countLimitDTO = new CountLimitDTO();
         try {
             if (StringUtil.isBlank(par)) {
                 //如果没有设置参数，说明在入参对象中
@@ -61,11 +58,15 @@ public class CountLimitAspect<T> {
             } else {
                 //说明在入参的某个对象中，有一个参数是进行限流
                 Object o = param.get(objectName);
-                queryPar = (List<T>) CommonUtil.getFieldValueByName(par, o);
+                queryPar = (List<T>) CountLimitCommonUtil.getFieldValueByName(par, o);
                 key += par;
             }
             count = queryPar.size();
-            while (!this.checkExceed(key, count, countLimit.limit())) {
+            countLimitDTO.setKey(key);
+            countLimitDTO.setCount(count);
+            countLimitDTO.setLimit(countLimit.limit());
+            countLimitDTO.setIsAdd(Boolean.TRUE);
+            while (!countLimitFacadeFactory.getBean(countFactoryEnum).process(countLimitDTO)) {
                 //是否超出等待时间
                 if (start.plusSeconds(countLimit.waitTime()).isBefore(LocalDateTime.now())) {
                     throw new CountLimitException("超出等待时间" + key);
@@ -80,59 +81,8 @@ public class CountLimitAspect<T> {
         try {
             return joinPoint.proceed();
         } finally {
-            this.reduce(key, count);
-        }
-    }
-
-    /**
-     * 检查是否超出计算限制
-     *
-     * @param key
-     * @param count
-     * @param limit
-     * @return
-     */
-    public boolean checkExceed(String key, int count, int limit) {
-        try {
-            if (lock.tryLock()) {
-                int now = countMap.getOrDefault(workerId + key, 0);
-                if (now + count > limit) {
-                    return false;
-                } else {
-                    log.info("CountLimitAspect:{}增加计算量:{}", workerId + key, now + count);
-                    countMap.put(workerId + key, now + count);
-                    return true;
-                }
-            } else {
-                return false;
-            }
-        } finally {
-            if (lock.isHeldByCurrentThread()) {
-                lock.unlock();
-            }
-        }
-    }
-
-
-    /**
-     * 减少目前在查询中的参数量级
-     *
-     * @param key
-     * @param count
-     */
-    public void reduce(String key, int count) {
-        try {
-            if (lock.tryLock(10, TimeUnit.SECONDS)) {
-                int now = countMap.get(workerId + key);
-                log.info("CountLimitAspect:{}减少计算量:{}", workerId + key, now - count);
-                countMap.put(workerId + key, now - count);
-            }
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } finally {
-            if (lock.isHeldByCurrentThread()) {
-                lock.unlock();
-            }
+            countLimitDTO.setIsAdd(Boolean.FALSE);
+            countLimitFacadeFactory.getBean(countFactoryEnum).process(countLimitDTO);
         }
     }
 
