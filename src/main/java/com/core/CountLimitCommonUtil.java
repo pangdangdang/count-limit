@@ -1,7 +1,14 @@
 package com.core;
 
 import com.exception.CountLimitException;
+import com.redislock.annotation.RedisLock;
+import com.redislock.enums.RedisEnum;
+import org.redisson.api.RBucket;
+import org.redisson.api.RedissonClient;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.stereotype.Component;
 
+import javax.annotation.Resource;
 import java.lang.reflect.Method;
 import java.util.UUID;
 
@@ -11,6 +18,10 @@ import java.util.UUID;
 public class CountLimitCommonUtil {
 
     public static final String COUNT_LIMIT_LOCK = "COUNT_LIMIT_LOCK:";
+
+    public static final String COUNT_LIMIT_REDIS_NODE_LOCK = "COUNT_LIMIT_REDIS_NODE_LOCK:";
+
+    public static final String COUNT_LIMIT_REDIS_NODE_STORE = "COUNT_LIMIT_REDIS_NODE_STORE:";
 
     public static final String COUNT_LIMIT_STORE = "COUNT_LIMIT_STORE:";
 
@@ -32,16 +43,9 @@ public class CountLimitCommonUtil {
 
     public static volatile int SPILT_SLEEP = 20;
 
-    public static String getNodeId() {
-        if (NODE_ID == null) {
-            synchronized (NODE_ID) {
-                //再次检查是否已有节点id
-                if (NODE_ID == null) {
-                    NODE_ID = UUID.randomUUID().toString();
-                }
-            }
+    public static final String GET = "get";
 
-        }
+    public static String getNodeId() {
         return NODE_ID;
     }
 
@@ -56,12 +60,12 @@ public class CountLimitCommonUtil {
     public static Object getFieldValueByName(String fieldName, Object o) {
         try {
             String firstLetter = fieldName.substring(0, 1).toUpperCase();
-            String getter = "get" + firstLetter + fieldName.substring(1);
+            String getter = GET + firstLetter + fieldName.substring(1);
             Method method = o.getClass().getMethod(getter, new Class[]{});
             Object value = method.invoke(o, new Object[]{});
             return value;
         } catch (Exception e) {
-            throw new CountLimitException("获取属性值失败" + e);
+            throw new CountLimitException("获取属性值失败", e);
         }
     }
 
