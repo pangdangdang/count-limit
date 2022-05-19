@@ -2,7 +2,6 @@ package com.core;
 
 import com.redislock.annotation.RedisLock;
 import com.redislock.enums.RedisEnum;
-import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RBucket;
 import org.redisson.api.RedissonClient;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -30,6 +29,9 @@ public class CountLimitNode {
         switch (redisEnum) {
             case SPRING_REDIS:
                 Integer temp = (Integer) redisTemplate.opsForValue().get(CountLimitCommonUtil.COUNT_LIMIT_REDIS_NODE_STORE);
+                if (temp == null) {
+                    temp = 0;
+                }
                 temp++;
                 redisTemplate.opsForValue().set(CountLimitCommonUtil.COUNT_LIMIT_REDIS_NODE_STORE, temp);
                 CountLimitCommonUtil.setNodeId(temp.toString());

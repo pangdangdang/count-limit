@@ -1,16 +1,8 @@
 package com.core;
 
 import com.exception.CountLimitException;
-import com.redislock.annotation.RedisLock;
-import com.redislock.enums.RedisEnum;
-import org.redisson.api.RBucket;
-import org.redisson.api.RedissonClient;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.stereotype.Component;
 
-import javax.annotation.Resource;
 import java.lang.reflect.Method;
-import java.util.UUID;
 
 /**
  * 共用类

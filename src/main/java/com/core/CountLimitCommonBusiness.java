@@ -1,15 +1,11 @@
 package com.core;
 
-import com.redislock.annotation.RedisLock;
-import com.redislock.core.RedisLockCommonUtil;
 import com.redislock.enums.RedisEnum;
-import com.util.CountLimitDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RBucket;
 import org.redisson.api.RedissonClient;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
-import org.springframework.web.context.annotation.RequestScope;
 
 import javax.annotation.Resource;
 import java.util.concurrent.ConcurrentHashMap;
@@ -50,6 +46,7 @@ public class CountLimitCommonBusiness {
         if (now + count > limit) {
             return false;
         } else {
+            log.debug("CountLimitAspect:{}增加计算量:{}", key, now + count);
             bucket.set(now + count);
             return true;
         }
@@ -66,6 +63,7 @@ public class CountLimitCommonBusiness {
         this.checkNode(RedisEnum.REDISSON);
         RBucket<Integer> bucket = redissonClient.getBucket(CountLimitCommonUtil.COUNT_LIMIT_STORE + CountLimitCommonUtil.getNodeId() + key);
         int now = bucket.get();
+        log.debug("CountLimitAspect:{}减少计算量:{}", key, now - count);
         bucket.set(now - count);
         return true;
     }
@@ -115,10 +113,14 @@ public class CountLimitCommonBusiness {
      */
     public boolean springRedisCheckExceed(String key, int count, int limit) {
         this.checkNode(RedisEnum.SPRING_REDIS);
-        int now = (int) redisTemplate.opsForValue().get(CountLimitCommonUtil.COUNT_LIMIT_STORE + CountLimitCommonUtil.getNodeId() + key);
+        Integer now = (Integer) redisTemplate.opsForValue().get(CountLimitCommonUtil.COUNT_LIMIT_STORE + CountLimitCommonUtil.getNodeId() + key);
+        if (now == null) {
+            now = 0;
+        }
         if (now + count > limit) {
             return false;
         } else {
+            log.debug("CountLimitAspect:{}增加计算量:{}", key, now + count);
             redisTemplate.opsForValue().set(CountLimitCommonUtil.COUNT_LIMIT_STORE + CountLimitCommonUtil.getNodeId() + key, now + count);
             return true;
         }
@@ -133,13 +135,18 @@ public class CountLimitCommonBusiness {
      */
     public boolean springRedisReduce(String key, int count) {
         this.checkNode(RedisEnum.SPRING_REDIS);
-        int now = (int) redisTemplate.opsForValue().get(CountLimitCommonUtil.COUNT_LIMIT_STORE + CountLimitCommonUtil.getNodeId() + key);
+        Integer now = (Integer) redisTemplate.opsForValue().get(CountLimitCommonUtil.COUNT_LIMIT_STORE + CountLimitCommonUtil.getNodeId() + key);
+        if (now == null) {
+            now = 0;
+        }
+        log.debug("CountLimitAspect:{}减少计算量:{}", key, now - count);
         redisTemplate.opsForValue().set(CountLimitCommonUtil.COUNT_LIMIT_STORE + CountLimitCommonUtil.getNodeId() + key, now - count);
         return true;
     }
 
     /**
      * 检查节点id，如果为空就设置
+     *
      * @param redisEnum
      */
     public void checkNode(RedisEnum redisEnum) {
