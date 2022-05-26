@@ -2,15 +2,14 @@ package com.core;
 
 
 import com.core.factory.CountLimitFacade;
+import com.distributedproxylock.annotation.DistributedProxyLock;
+import com.distributedproxylock.core.DistributedProxyLockCommonUtil;
 import com.enums.CountFactoryEnum;
-import com.redislock.annotation.RedisLock;
-import com.redislock.core.RedisLockCommonUtil;
 import com.util.CountLimitDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.util.Objects;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * SpringRedis锁本地存储
@@ -28,11 +27,11 @@ public class SpringRedisLockLocalStore extends CountLimitCommonBusiness implemen
     }
 
     @Override
-    @RedisLock(key = CountLimitCommonUtil.COUNT_LIMIT_LOCK,
-            suffixKeyTypeEnum = RedisLockCommonUtil.PARAM,
+    @DistributedProxyLock(key = CountLimitCommonUtil.COUNT_LIMIT_LOCK,
+            suffixKeyTypeEnum = DistributedProxyLockCommonUtil.PARAM,
             objectName = "countLimitDTO",
             paramName = "LockKey",
-            redisEnum = RedisLockCommonUtil.SPRING_REDIS)
+            lockConnectionEnum = DistributedProxyLockCommonUtil.SPRING_REDIS)
     public boolean process(CountLimitDTO countLimitDTO) {
         if (countLimitDTO.getIsAdd()) {
             return super.localCheckExceed(countLimitDTO.getKey(), countLimitDTO.getCount(), countLimitDTO.getLimit());

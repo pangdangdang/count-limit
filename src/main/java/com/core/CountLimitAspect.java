@@ -6,7 +6,6 @@ import com.enums.CountFactoryEnum;
 import com.exception.CountLimitException;
 import com.util.CountLimitDTO;
 import jodd.util.StringUtil;
-import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -20,7 +19,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@Slf4j
 @Aspect
 @Component
 public class CountLimitAspect<T> {

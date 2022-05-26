@@ -1,6 +1,6 @@
 package com.core;
 
-import com.redislock.enums.RedisEnum;
+import com.distributedproxylock.enums.LockConnectionEnum;
 import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RBucket;
 import org.redisson.api.RedissonClient;
@@ -37,7 +37,7 @@ public class CountLimitCommonBusiness {
      * @return
      */
     public boolean redissonCheckExceed(String key, int count, int limit) {
-        this.checkNode(RedisEnum.REDISSON);
+        this.checkNode(LockConnectionEnum.REDISSON);
         RBucket<Integer> bucket = redissonClient.getBucket(CountLimitCommonUtil.COUNT_LIMIT_STORE + CountLimitCommonUtil.getNodeId() + key);
         int now = 0;
         if (bucket.isExists()) {
@@ -60,7 +60,7 @@ public class CountLimitCommonBusiness {
      * @param count
      */
     public boolean redissonReduce(String key, int count) {
-        this.checkNode(RedisEnum.REDISSON);
+        this.checkNode(LockConnectionEnum.REDISSON);
         RBucket<Integer> bucket = redissonClient.getBucket(CountLimitCommonUtil.COUNT_LIMIT_STORE + CountLimitCommonUtil.getNodeId() + key);
         int now = bucket.get();
         log.debug("CountLimitAspect:{}减少计算量:{}", key, now - count);
@@ -112,7 +112,7 @@ public class CountLimitCommonBusiness {
      * @return
      */
     public boolean springRedisCheckExceed(String key, int count, int limit) {
-        this.checkNode(RedisEnum.SPRING_REDIS);
+        this.checkNode(LockConnectionEnum.SPRING_REDIS);
         Integer now = (Integer) redisTemplate.opsForValue().get(CountLimitCommonUtil.COUNT_LIMIT_STORE + CountLimitCommonUtil.getNodeId() + key);
         if (now == null) {
             now = 0;
@@ -134,7 +134,7 @@ public class CountLimitCommonBusiness {
      * @param count
      */
     public boolean springRedisReduce(String key, int count) {
-        this.checkNode(RedisEnum.SPRING_REDIS);
+        this.checkNode(LockConnectionEnum.SPRING_REDIS);
         Integer now = (Integer) redisTemplate.opsForValue().get(CountLimitCommonUtil.COUNT_LIMIT_STORE + CountLimitCommonUtil.getNodeId() + key);
         if (now == null) {
             now = 0;
@@ -147,12 +147,12 @@ public class CountLimitCommonBusiness {
     /**
      * 检查节点id，如果为空就设置
      *
-     * @param redisEnum
+     * @param lockConnectionEnum
      */
-    public void checkNode(RedisEnum redisEnum) {
+    public void checkNode(LockConnectionEnum lockConnectionEnum) {
         if (CountLimitCommonUtil.getNodeId() != null) {
             return;
         }
-        countLimitNode.setNode(redisEnum);
+        countLimitNode.setNode(lockConnectionEnum);
     }
 }

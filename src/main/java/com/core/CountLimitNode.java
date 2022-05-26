@@ -1,7 +1,7 @@
 package com.core;
 
-import com.redislock.annotation.RedisLock;
-import com.redislock.enums.RedisEnum;
+import com.distributedproxylock.annotation.DistributedProxyLock;
+import com.distributedproxylock.enums.LockConnectionEnum;
 import org.redisson.api.RBucket;
 import org.redisson.api.RedissonClient;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -21,12 +21,12 @@ public class CountLimitNode {
     @Resource
     private RedisTemplate redisTemplate;
 
-    @RedisLock(key = CountLimitCommonUtil.COUNT_LIMIT_REDIS_NODE_LOCK)
-    public void setNode(RedisEnum redisEnum) {
+    @DistributedProxyLock(key = CountLimitCommonUtil.COUNT_LIMIT_REDIS_NODE_LOCK)
+    public void setNode(LockConnectionEnum lockConnectionEnum) {
         if (CountLimitCommonUtil.getNodeId() != null) {
             return;
         }
-        switch (redisEnum) {
+        switch (lockConnectionEnum) {
             case SPRING_REDIS:
                 Integer temp = (Integer) redisTemplate.opsForValue().get(CountLimitCommonUtil.COUNT_LIMIT_REDIS_NODE_STORE);
                 if (temp == null) {

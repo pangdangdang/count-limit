@@ -1,4 +1,4 @@
-package com.redislock.util;
+package com.distributedproxylock.util;
 
 
 /**
@@ -6,7 +6,7 @@ package com.redislock.util;
  *
  * @author tingmailang
  */
-public class RedisLockUtil {
+public class DistributedProxyLockUtil {
 
 
     static ThreadLocal<String> LOCK_KEY = new ThreadLocal<String>();
