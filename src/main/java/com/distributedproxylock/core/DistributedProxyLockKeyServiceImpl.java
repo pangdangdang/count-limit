@@ -35,7 +35,7 @@ public class DistributedProxyLockKeyServiceImpl implements DistributedProxyLockS
         if (StringUtil.isBlank(DistributedProxyLockUtil.get())) {
             throw new DistributedProxyLockException("DistributedProxyLockUtil为空");
         }
-        return lockKey;
+        return lockKey + DistributedProxyLockUtil.get();
     }
 
 
