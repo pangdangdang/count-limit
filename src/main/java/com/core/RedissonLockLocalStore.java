@@ -16,7 +16,6 @@ import java.util.Objects;
  *
  * @author tingmailang
  */
-@Slf4j
 @Component
 public class RedissonLockLocalStore extends CountLimitCommonBusiness implements CountLimitFacade<CountLimitDTO> {
 

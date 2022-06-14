@@ -16,7 +16,6 @@ import java.util.Objects;
  *
  * @author tingmailang
  */
-@Slf4j
 @Component
 public class SpringRedisLockLocalStore extends CountLimitCommonBusiness implements CountLimitFacade<CountLimitDTO> {
 

@@ -3,14 +3,14 @@ package com.core.factory;
 
 import com.enums.CountFactoryEnum;
 import com.exception.CountLimitException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.Resource;
 import java.util.List;
 
 @Component
 public class CountLimitFacadeFactory<T> implements FactoryList<CountLimitFacade<T>, CountFactoryEnum> {
-    @Autowired
+    @Resource
     private List<CountLimitFacade> countLimitFacades;
 
     @Override

@@ -16,7 +16,6 @@ import java.util.concurrent.locks.ReentrantLock;
  *
  * @author tingmailang
  */
-@Slf4j
 @Component
 public class LocalLockLocalStore extends CountLimitCommonBusiness implements CountLimitFacade<CountLimitDTO> {
 
