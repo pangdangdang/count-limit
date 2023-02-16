@@ -5,6 +5,7 @@
         不同于参数限制，工具针对的是服务所有线程对于该计算维度的限流。
 
 #### 软件架构
+![image2022-5-11_18-12-51 (1)](https://user-images.githubusercontent.com/90837835/219278302-b6a44f15-7c96-45b6-8ea9-ae2724c82616.png)
 
 SpringBoot
 
